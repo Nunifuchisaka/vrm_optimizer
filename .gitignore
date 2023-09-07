@@ -1,0 +1,3 @@
+*.vrm
+/node_modules
+/package-lock.json
