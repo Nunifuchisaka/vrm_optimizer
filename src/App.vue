@@ -8,9 +8,23 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { VRMLoaderPlugin } from '@pixiv/three-vrm'
 
-
 let vrm
+const vrm_ = ref({
+  meta: {
+    title: '',
+    version: 0,
+    author: '',
+  },
+  materials: {length: 0},
+})
 
+const reset = () => {
+  console.count('reset')
+  if ( !vrm ) return;
+  scene.remove(vrm.scene)
+}
+
+//シーン
 const scene = new THREE.Scene()
 
 //レンダラ
@@ -63,18 +77,27 @@ function load(model) {
   loader.load(
     model,
     (gltf) => {
-      console.log( gltf )
+      //console.log(gltf.userData.vrm)
       vrm = gltf.userData.vrm
+      console.log(vrm)
+      /*
+      vrm_.value = {
+        title: vrm.meta.title,
+        version: vrm.meta.version,
+        materials: vrm.materials.length,
+        author: vrm.meta.author,
+      }
+      */
+      vrm_.value = vrm
       scene.add(vrm.scene)
       vrm.scene.rotation.y = Math.PI
-      console.log(vrm.meta)
       
-      vrm.expressionManager.setValue('happy', 1.0);
-      vrm.humanoid.getNormalizedBoneNode( 'leftUpperArm' ).rotation.z = 1.1;
-      vrm.humanoid.getNormalizedBoneNode( 'rightUpperArm' ).rotation.z = -1.1;
+      vrm.expressionManager.setValue('happy', 1.0)
+      vrm.humanoid.getNormalizedBoneNode('leftUpperArm').rotation.z = 1.1
+      vrm.humanoid.getNormalizedBoneNode('rightUpperArm').rotation.z = -1.1
 
-      vrm.expressionManager.update();
-      vrm.humanoid.update();
+      vrm.expressionManager.update()
+      vrm.humanoid.update()
     },
     (progress) => console.log('Loading model...', 100.0 * (progress.loaded / progress.total), '%'),
     (error) => console.error(error),
@@ -82,12 +105,6 @@ function load(model) {
 }
 
 load( '/AliciaSolid.vrm' )
-
-const reset = () => {
-  console.count('reset')
-  if ( !vrm ) return;
-  scene.remove(vrm.scene)
-}
 
 const tick = () => {
   requestAnimationFrame(tick)
@@ -97,7 +114,7 @@ tick()
 </script>
 
 <template>
-  <Meta />
+  <Meta :vrm="vrm_" />
   <Uoload @load="load" />
 </template>
 

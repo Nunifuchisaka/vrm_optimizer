@@ -9,8 +9,8 @@ const emits = defineEmits<Emits>();
 const reader = new FileReader()
 
 reader.onload = (event) => {
-  console.log(event)
-  console.log(typeof event.target.result)
+  //console.log(event)
+  //console.log(typeof event.target.result)
   emits('load', event.target.result)
 }
 

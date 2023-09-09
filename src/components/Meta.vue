@@ -1,17 +1,26 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
-const title = ref('')
-const version = ref(0)
-const author = ref('')
+const props = defineProps<{
+  vrm: object
+}>()
+const vrm = ref<object>(props.vrm);
+
+watch(() => props.vrm, () => {
+  console.log(props.vrm)
+  vrm.value = props.vrm
+});
+
 </script>
 
 <template>
   <div id="meta">
     <dl>
-      <dt>title</dt><dd>{{ title }}</dd>
-      <dt>version</dt><dd>{{ version }}</dd>
-      <dt>author</dt><dd>{{ author }}</dd>
+      <dt>title</dt><dd>{{ vrm.meta.title }}</dd>
+      <dt>version</dt><dd>{{ vrm.meta.version }}</dd>
+      <dt>materials</dt><dd>{{ vrm.materials.length }}</dd>
+      <dt>joints</dt><dd>{{ vrm.springBoneManager._joints.size }}</dd>
+      <dt>author</dt><dd>{{ vrm.meta.author }}</dd>
     </dl>
   </div>
 </template>
