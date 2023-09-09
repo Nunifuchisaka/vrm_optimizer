@@ -6,14 +6,15 @@ const DIST_DIR = './dist',
       SRC_PATH = path.resolve(__dirname, SRC_DIR),
       BrowserSyncPlugin = require('browser-sync-webpack-plugin'),
       RemoveEmptyScriptsPlugin = require('webpack-remove-empty-scripts'),
-      MiniCssExtractPlugin = require('mini-css-extract-plugin'),
+      //MiniCssExtractPlugin = require('mini-css-extract-plugin'),
+      { VueLoaderPlugin } = require('vue-loader'),
       entries = {};
 
 glob.sync('*.ts', {
-  cwd: SRC_DIR + '/ts',
-  ignore: '_*.ts',
+  cwd: SRC_DIR,
+  ignore: ['_*.ts','*.d.ts'],
 }).map(function(key){
-  entries[key.replace('.ts', '')] = SRC_DIR + '/ts/' + key;
+  entries[key.replace('.ts', '')] = SRC_DIR + '/' + key;
 });
 
 glob.sync('*.scss', {
@@ -25,6 +26,7 @@ glob.sync('*.scss', {
 
 module.exports = {
   mode: 'development',
+  devtool: 'inline-source-map',
   entry: entries,
   output: {
     path: DIST_PATH,
@@ -33,31 +35,19 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.vue$/,
+        loader: 'vue-loader'
+      },
+      {
         test: /\.ts$/,
-        use: 'ts-loader'
-      }, {
+        loader: 'ts-loader',
+        options: {
+          appendTsSuffixTo: [/\.vue$/]
+        }
+      },
+      {
         test: /\.scss$/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          {
-            loader: 'css-loader',
-            options: {
-              url: false,
-              //sourceMap: false,
-              importLoaders: 2,
-            }
-          },
-          'postcss-loader',
-          {
-            loader: 'sass-loader',
-            options: {
-              implementation: require('sass'),
-              sassOptions: {
-                outputStyle: 'compressed',
-              }
-            }
-          }
-        ]
+        use: ['style-loader', 'css-loader', 'sass-loader']
       }
     ]
   },
@@ -65,17 +55,16 @@ module.exports = {
     extensions: ['.ts', '.js']
   },
   plugins: [
-    new MiniCssExtractPlugin({
-      filename: '[name]',
-    }),
+    new VueLoaderPlugin(),
     new RemoveEmptyScriptsPlugin(),
     new BrowserSyncPlugin({
       host: 'localhost',
       port: 2000,
-      server: { baseDir: './dist' },
+      server: { baseDir: DIST_DIR },
       files: [
-        './dist/*.html',
-        './dist/*.css'
+        DIST_DIR + '/*.html',
+        DIST_DIR + '/*.css',
+        DIST_DIR + '/*.js'
       ]
     })
   ]
