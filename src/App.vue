@@ -1,22 +1,26 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import Meta from './components/Meta.vue'
-import Uoload from './components/Uoload.vue'
+import Info from './components/Info.vue'
+import Database from './components/Database.vue'
 
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { VRMLoaderPlugin } from '@pixiv/three-vrm'
+import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm'
 
 let vrm
-const vrm_ = ref({
-  meta: {
-    title: '',
-    version: 0,
-    author: '',
-  },
-  materials: {length: 0},
+
+const info = ref({
+  title: '',
+  version: 0,
+  author: '',
+  triangles: 0,
+  materials: 0,
+  joints: 0,
+  height: 0,
 })
+
+let renderInfo
 
 const reset = () => {
   console.count('reset')
@@ -32,6 +36,7 @@ const renderer = new THREE.WebGLRenderer({
   antialias: true,
   //alpha: true,
 })
+renderer.setPixelRatio(window.devicePixelRatio)
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setClearColor(0x000000)
 document.body.appendChild(renderer.domElement)
@@ -67,55 +72,72 @@ scene.add(axesHelper)
 
 //ローダ
 const loader = new GLTFLoader()
-
 loader.register((parser) => {
   return new VRMLoaderPlugin(parser)
 })
 
-function load(model) {
+const success = (gltf) => {
+  //console.log(gltf.userData.vrm)
+  vrm = gltf.userData.vrm
+  console.log(vrm)
+  scene.add(vrm.scene)
+  VRMUtils.rotateVRM0(vrm)
+  //vrm.scene.rotation.y = Math.PI
+  
+  vrm.expressionManager.setValue('happy', 1.0)
+  vrm.humanoid.getNormalizedBoneNode('leftUpperArm').rotation.z = 1.1
+  vrm.humanoid.getNormalizedBoneNode('rightUpperArm').rotation.z = -1.1
+
+  vrm.expressionManager.update()
+  vrm.humanoid.update()
+
+  // バウンディングボックスの可視化
+  const boxHelper = new THREE.BoxHelper(vrm.scene, 0xffff00);
+  vrm.scene.add(boxHelper);
+
+  const bBox = new THREE.Box3().setFromObject(vrm.scene);
+  const bSize = bBox.max.sub(bBox.min);
+
+  //Info
+  renderInfo = getRenderInfo()
+  info.value = {
+    title: vrm.meta.title,
+    version: vrm.meta.version,
+    author: vrm.meta.author,
+    triangles: renderInfo.render.triangles,
+    materials: vrm.materials.length,
+    height: bSize.y,
+    joints: vrm.springBoneManager._joints.size,
+  }
+}
+
+function load(model:string) {
   if ( vrm ) reset();
   loader.load(
-    model,
-    (gltf) => {
-      //console.log(gltf.userData.vrm)
-      vrm = gltf.userData.vrm
-      console.log(vrm)
-      /*
-      vrm_.value = {
-        title: vrm.meta.title,
-        version: vrm.meta.version,
-        materials: vrm.materials.length,
-        author: vrm.meta.author,
-      }
-      */
-      vrm_.value = vrm
-      scene.add(vrm.scene)
-      vrm.scene.rotation.y = Math.PI
-      
-      vrm.expressionManager.setValue('happy', 1.0)
-      vrm.humanoid.getNormalizedBoneNode('leftUpperArm').rotation.z = 1.1
-      vrm.humanoid.getNormalizedBoneNode('rightUpperArm').rotation.z = -1.1
-
-      vrm.expressionManager.update()
-      vrm.humanoid.update()
-    },
+    model, success,
     (progress) => console.log('Loading model...', 100.0 * (progress.loaded / progress.total), '%'),
     (error) => console.error(error),
   )
 }
 
-load( '/AliciaSolid.vrm' )
-
 const tick = () => {
   requestAnimationFrame(tick)
   renderer.render(scene, camera)
 }
+
+const getRenderInfo = () => {
+  tick()
+  return (renderer.info)
+}
+
+//load( '/AliciaSolid.vrm' )
+
 tick()
 </script>
 
 <template>
-  <Meta :vrm="vrm_" />
-  <Uoload @load="load" />
+  <Info :info="info" />
+  <Database @load="load" />
 </template>
 
 <style lang="scss">
