@@ -15,15 +15,51 @@ watch(() => props.info, () => {
 
 <template>
   <div id="meta">
-    <dl>
-      <dt>title</dt><dd>{{ info.title }}</dd>
-      <dt>version</dt><dd>{{ info.version }}</dd>
-      <dt>triangles</dt><dd>{{ info.triangles }}</dd>
-      <dt>materials</dt><dd>{{ info.materials }}</dd>
-      <dt>joints</dt><dd>{{ info.joints }}</dd>
-      <dt>height</dt><dd>{{ Math.round(info.height*100)/100 }}m</dd>
-      <dt>author</dt><dd>{{ info.author }}</dd>
-    </dl>
+    <table>
+      <tr>
+        <th>title</th>
+        <td>{{ info.title }}</td>
+      </tr>
+      <tr>
+        <th>version</th>
+        <td>{{ info.version }}</td>
+      </tr>
+      <tr>
+        <th>triangles</th>
+        <td>{{ info.triangles.toLocaleString() }}</td>
+      </tr>
+      <tr>
+        <th>materials</th>
+        <td>{{ info.materials }}</td>
+      </tr>
+      <tr>
+        <th>joints</th>
+        <td>{{ info.joints }}</td>
+      </tr>
+      <tr>
+        <th>size</th>
+        <td>
+          <table>
+            <tr>
+              <th>x</th>
+              <td>{{ Math.round(info.size.x*10000)/100 }}cm</td>
+            </tr>
+            <tr>
+              <th>y</th>
+              <td>{{ Math.round(info.size.y*10000)/100 }}cm</td>
+            </tr>
+            <tr>
+              <th>x</th>
+              <td>{{ Math.round(info.size.z*10000)/100 }}cm</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <th>author</th>
+        <td>{{ info.author }}</td>
+      </tr>
+    </table>
   </div>
 </template>
 
@@ -34,9 +70,16 @@ watch(() => props.info, () => {
   left: 0;
   padding: 1em;
   background: rgba(255,255,255,.8);
-  dl {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+  table {
+    text-align: left;
+  }
+  th, td {
+    vertical-align: top;
+  }
+  th {
+    width: 0;
+    padding-right: 1em;
+    white-space: nowrap;
   }
 }
 </style>

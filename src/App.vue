@@ -17,7 +17,7 @@ const info = ref({
   triangles: 0,
   materials: 0,
   joints: 0,
-  height: 0,
+  size: new THREE.Vector3(),
 })
 
 let renderInfo
@@ -99,6 +99,7 @@ const success = (gltf) => {
 
   const bBox = new THREE.Box3().setFromObject(vrm.scene)
   const bSize = bBox.max.sub(bBox.min)
+  console.log(bSize)
 
   //Info
   renderInfo = getRenderInfo()
@@ -108,7 +109,7 @@ const success = (gltf) => {
     author: vrm.meta.author,
     triangles: renderInfo.render.triangles,
     materials: vrm.materials.length,
-    height: bSize.y,
+    size: bSize,
     joints: vrm.springBoneManager._joints.size,
   }
 }
