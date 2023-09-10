@@ -26,7 +26,7 @@ const initDB = () => {
   }
 }
 
-const dbSaveModel = (model: Blob) => {
+const saveModel = (model: Blob) => {
   const request = window.indexedDB.open(dbName, version)
   request.onsuccess = function (event) {
     const target = event.target as IDBOpenDBRequest
@@ -51,7 +51,7 @@ const dbSaveModel = (model: Blob) => {
   }
 }
 
-const dbLoadModel = (onLoad: (blob: Blob) => void): void => {
+const loadModel = (onLoad: (blob: Blob) => void): void => {
   const request = window.indexedDB.open(dbName, version)
   request.onsuccess = function (event) {
     const target = event.target as IDBOpenDBRequest
@@ -77,6 +77,10 @@ const dbLoadModel = (onLoad: (blob: Blob) => void): void => {
   }
 }
 
+const deleteDB = () => {
+  const deleteRequest = window.indexedDB.deleteDatabase(dbName);
+}
+
 initDB()
 
 const change = (event) => {
@@ -86,11 +90,11 @@ const change = (event) => {
   const file = files[0]
   if (!file) return
   const blob = new Blob([file], { type: 'application/octet-stream' })
-  dbSaveModel(blob)
+  saveModel(blob)
   emits('load', URL.createObjectURL(blob))
 }
 
-dbLoadModel(
+loadModel(
   (blob) => {
     emits('load', URL.createObjectURL(blob))
   }
@@ -110,8 +114,5 @@ div {
   right: 10px;
   padding: 1em;
   background-color: #fff;
-}
-input {
-  
 }
 </style>

@@ -82,21 +82,23 @@ const success = (gltf) => {
   console.log(vrm)
   scene.add(vrm.scene)
   VRMUtils.rotateVRM0(vrm)
-  //vrm.scene.rotation.y = Math.PI
   
-  vrm.expressionManager.setValue('happy', 1.0)
+  //vrm.expressionManager.setValue('happy', 1.0)
+  //vrm.expressionManager.update()
+  
   vrm.humanoid.getNormalizedBoneNode('leftUpperArm').rotation.z = 1.1
   vrm.humanoid.getNormalizedBoneNode('rightUpperArm').rotation.z = -1.1
-
-  vrm.expressionManager.update()
   vrm.humanoid.update()
 
-  // バウンディングボックスの可視化
-  const boxHelper = new THREE.BoxHelper(vrm.scene, 0xffff00);
-  vrm.scene.add(boxHelper);
+  //vrm.lookAt.target = camera
+  //vrm.lookAt.autoUpdate = true
 
-  const bBox = new THREE.Box3().setFromObject(vrm.scene);
-  const bSize = bBox.max.sub(bBox.min);
+  // バウンディングボックスの可視化
+  const boxHelper = new THREE.BoxHelper(vrm.scene, 0xffff00)
+  vrm.scene.add(boxHelper)
+
+  const bBox = new THREE.Box3().setFromObject(vrm.scene)
+  const bSize = bBox.max.sub(bBox.min)
 
   //Info
   renderInfo = getRenderInfo()
