@@ -88,6 +88,7 @@ const change = (event) => {
   const files = target.files
   if (!files) return
   const file = files[0]
+  console.log(file)
   if (!file) return
   const blob = new Blob([file], { type: 'application/octet-stream' })
   saveModel(blob)

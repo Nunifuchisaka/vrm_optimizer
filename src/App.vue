@@ -7,6 +7,7 @@ import Material from './components/Material.vue'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter';
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm'
 
 let vrm
@@ -24,6 +25,7 @@ const info = ref({
 
 const materials = ref({})
 
+let _gltf
 let renderInfo
 
 const reset = () => {
@@ -63,6 +65,7 @@ controls.update()
 //ライト
 const light = new THREE.DirectionalLight(0xffffff)
 light.position.set(1,1,1).normalize()
+light.target.position.set(0,0,-1)
 scene.add(light)
 
 //グリッドを表示
@@ -82,6 +85,7 @@ loader.register((parser) => {
 
 const onLoad = (gltf) => {
   console.log(gltf)
+  _gltf = gltf
   vrm = gltf.userData.vrm
   console.log(vrm)
   scene.add(vrm.scene)
@@ -123,6 +127,9 @@ const onLoad = (gltf) => {
 
 function load(model:string) {
   if ( vrm ) reset();
+  console.group('Load VRM')
+  console.log(model)
+  console.groupEnd()
   loader.load(
     model, onLoad,
     (progress) => console.log('Loading model...', 100.0 * (progress.loaded / progress.total), '%'),
@@ -141,12 +148,47 @@ const getRenderInfo = () => {
 }
 
 update()
+
+let exportURL = ref('#')
+
+const exporter = new GLTFExporter();
+const exportVRM = () => {
+  console.group('Export VRM')
+  /*
+  console.log(_gltf)
+  const blob = new Blob([_gltf], { type: 'application/octet-stream' })
+  console.log(blob)
+  exportURL.value = URL.createObjectURL(blob)
+  console.log(exportURL.value)
+  */
+  /*
+  exporter.parse(
+    _gltf,
+    function ( gltf ) {
+      console.log( gltf );
+      var output = JSON.stringify( gltf, null, 2 );
+      console.log( output );
+      //downloadJSON( output, 'scene.gltf' );
+    },
+    function ( error ) {
+      console.log( 'An error happened' );
+    },
+    {
+      //binary: true,
+      //maxTextureSize: 2048,
+    }
+  )
+  */
+  console.groupEnd()
+}
 </script>
 
 <template>
   <Info :info="info" />
   <Database @load="load" />
   <Material :materials="materials" />
+  <button @click="exportVRM">Export</button>
+  <a :href="exportURL" download>Export</a>
 </template>
 
 <style lang="scss">

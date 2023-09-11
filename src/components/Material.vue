@@ -10,7 +10,29 @@ const materials = ref<object>(props.materials);
 watch(() => props.materials, () => {
   //console.log(props.materials)
   materials.value = props.materials
+  //console.log(materials.value[0].map)
 });
+
+const bitmapLoader = new THREE.ImageBitmapLoader();
+bitmapLoader.setOptions( { imageOrientation: 'flipY' } );
+
+const upload = (event) => {
+  console.group('Texture Upload')
+  const target = event.target as HTMLInputElement
+  const files = target.files
+  if (!files) return
+  const file = files[0]
+  console.log(file)
+  if (!file) return
+  const url = URL.createObjectURL(file)
+  console.log(url)
+  bitmapLoader.load(url, (imageBitmap) => {
+    console.log(imageBitmap)
+    materials.value[0].map.image = imageBitmap
+  })
+  console.groupEnd()
+}
+
 </script>
 
 <template>
@@ -22,6 +44,7 @@ watch(() => props.materials, () => {
           <th>
             {{ material.name }}
             <p><a v-bind:href="dataURL" v-bind:download="material.name"><button>Download</button></a></p>
+            <p><label><button>Upload</button><input type="file" accept=".png,.jpg" @change="upload" style="display: none_"></label></p>
           </th>
           <td>
             <img class="thumbnail" v-bind:src="dataURL">
