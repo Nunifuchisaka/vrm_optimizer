@@ -33,6 +33,10 @@ watch(() => props.info, () => {
         <td>{{ info.materials }}</td>
       </tr>
       <tr>
+        <th>textures</th>
+        <td>{{ info.textures }}</td>
+      </tr>
+      <tr>
         <th>joints</th>
         <td>{{ info.joints }}</td>
       </tr>

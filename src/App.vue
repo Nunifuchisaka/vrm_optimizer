@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import Info from './components/Info.vue'
 import Database from './components/Database.vue'
+import Info from './components/Info.vue'
+import Material from './components/Material.vue'
 
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
@@ -16,9 +17,12 @@ const info = ref({
   author: '',
   triangles: 0,
   materials: 0,
+  textures: 0,
   joints: 0,
   size: new THREE.Vector3(),
 })
+
+const materials = ref({})
 
 let renderInfo
 
@@ -76,8 +80,8 @@ loader.register((parser) => {
   return new VRMLoaderPlugin(parser)
 })
 
-const success = (gltf) => {
-  //console.log(gltf.userData.vrm)
+const onLoad = (gltf) => {
+  console.log(gltf)
   vrm = gltf.userData.vrm
   console.log(vrm)
   scene.add(vrm.scene)
@@ -99,7 +103,6 @@ const success = (gltf) => {
 
   const bBox = new THREE.Box3().setFromObject(vrm.scene)
   const bSize = bBox.max.sub(bBox.min)
-  console.log(bSize)
 
   //Info
   renderInfo = getRenderInfo()
@@ -109,38 +112,41 @@ const success = (gltf) => {
     author: vrm.meta.author,
     triangles: renderInfo.render.triangles,
     materials: vrm.materials.length,
+    textures: Object.keys(gltf.parser.textureCache).length,
     size: bSize,
     joints: vrm.springBoneManager._joints.size,
   }
+
+  //Material
+  materials.value = vrm.materials
 }
 
 function load(model:string) {
   if ( vrm ) reset();
   loader.load(
-    model, success,
+    model, onLoad,
     (progress) => console.log('Loading model...', 100.0 * (progress.loaded / progress.total), '%'),
     (error) => console.error(error),
   )
 }
 
-const tick = () => {
-  requestAnimationFrame(tick)
+const update = () => {
+  requestAnimationFrame(update)
   renderer.render(scene, camera)
 }
 
 const getRenderInfo = () => {
-  tick()
+  update()
   return (renderer.info)
 }
 
-//load( '/AliciaSolid.vrm' )
-
-tick()
+update()
 </script>
 
 <template>
   <Info :info="info" />
   <Database @load="load" />
+  <Material :materials="materials" />
 </template>
 
 <style lang="scss">
