@@ -2,6 +2,11 @@
 import { ref, watch, computed } from 'vue'
 import * as THREE from 'three'
 
+let uploadingIndex = ref(0)
+watch(uploadingIndex, () => {
+  console.log(uploadingIndex.value)
+})
+
 const props = defineProps<{
   materials: object
 }>()
@@ -10,9 +15,9 @@ const materials = ref<object>(props.materials);
 watch(() => props.materials, () => {
   //console.log(props.materials)
   materials.value = props.materials
-  //console.log(materials.value[0].map)
-});
+})
 
+//
 const bitmapLoader = new THREE.ImageBitmapLoader();
 bitmapLoader.setOptions( { imageOrientation: 'flipY' } );
 
@@ -22,36 +27,38 @@ const upload = (event) => {
   const files = target.files
   if (!files) return
   const file = files[0]
-  console.log(file)
+  //console.log(file)
   if (!file) return
   const url = URL.createObjectURL(file)
-  console.log(url)
+  //console.log(url)
   bitmapLoader.load(url, (imageBitmap) => {
-    console.log(imageBitmap)
-    materials.value[0].map.image = imageBitmap
+    //console.log(imageBitmap)
+    materials.value[uploadingIndex.value].map.image = imageBitmap
+    //const texture = new THREE.CanvasTexture( imageBitmap )
+    //materials.value[uploadingIndex.value].map = texture
   })
   console.groupEnd()
 }
-
 </script>
 
 <template>
   <section id="materials">
     <h2>Materials</h2>
     <table>
-      <template v-for="material in materials">
+      <template v-for="(material, i) in materials" :key="i">
         <tr v-if="Boolean(material.map)" :set="dataURL = THREE.ImageUtils.getDataURL(material.map.image)">
           <th>
-            {{ material.name }}
-            <p><a v-bind:href="dataURL" v-bind:download="material.name"><button>Download</button></a></p>
-            <p><label><button>Upload</button><input type="file" accept=".png,.jpg" @change="upload" style="display: none_"></label></p>
+            {{ i }} : {{ material.name }}
+            <p><a :href="dataURL" :download="material.name"><button class="button_1">Download</button></a></p>
+            <p><label class="button_1" for="uploadTexture" @click="uploadingIndex = i">upload</label></p>
           </th>
           <td>
-            <img class="thumbnail" v-bind:src="dataURL">
+            <img class="thumbnail" :src="dataURL">
           </td>
         </tr>
       </template>
     </table>
+    <input id="uploadTexture" type="file" accept=".png,.jpg" @change="upload" style="display: none">
   </section>
 </template>
 

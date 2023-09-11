@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import Database from './components/Database.vue'
 import Info from './components/Info.vue'
 import Material from './components/Material.vue'
+import Expression from './components/Expression.vue'
 
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
@@ -24,6 +25,7 @@ const info = ref({
 })
 
 const materials = ref({})
+const expressions = ref({})
 
 let _gltf
 let renderInfo
@@ -91,6 +93,9 @@ const onLoad = (gltf) => {
   scene.add(vrm.scene)
   VRMUtils.rotateVRM0(vrm)
   
+  console.group('expressionManager')
+  console.log( vrm.expressionManager.expressionMap )
+  console.groupEnd()
   //vrm.expressionManager.setValue('happy', 1.0)
   //vrm.expressionManager.update()
   
@@ -123,6 +128,9 @@ const onLoad = (gltf) => {
 
   //Material
   materials.value = vrm.materials
+
+  //Expression
+  expressions.value = vrm.expressionManager.expressionMap
 }
 
 function load(model:string) {
@@ -149,6 +157,35 @@ const getRenderInfo = () => {
 
 update()
 
+
+//Expressions
+const currentEexpression = ref<string>('')
+
+watch(currentEexpression, (next, prev) => {
+  console.group('Watch Current Eexpression')
+  console.log(next, prev)
+  if ( '' != prev ) {
+    vrm.expressionManager.setValue(prev, 0)
+  }
+  if ( '' != next ) {
+    vrm.expressionManager.setValue(next, 1)
+  }
+  vrm.expressionManager.update()
+  console.groupEnd()
+})
+
+const setExpression = (key:string) => {
+  if ( currentEexpression.value === key ) {
+    vrm.expressionManager.setValue(key, 0)
+    vrm.expressionManager.update()
+    currentEexpression.value = ''
+  } else {
+    currentEexpression.value = key
+  }
+}
+
+
+//
 let exportURL = ref('#')
 
 const exporter = new GLTFExporter();
@@ -187,10 +224,28 @@ const exportVRM = () => {
   <Info :info="info" />
   <Database @load="load" />
   <Material :materials="materials" />
+  <Expression :expressions="expressions" @setExpression="setExpression" />
   <button @click="exportVRM">Export</button>
   <a :href="exportURL" download>Export</a>
 </template>
 
 <style lang="scss">
 body, p, ul, ol, dl { margin: 0 }
+
+body {
+  line-height: 1.4;
+}
+
+.button_1 {
+  display: inline-block;
+  appearance: none;
+  padding: .4em .8em;
+  font-size: .8rem;
+  font-weight: normal;
+  background: #fff;
+  border: solid 1px #ccc;
+  border-radius: .5em;
+  vertical-align: middle;
+  cursor: pointer;
+}
 </style>

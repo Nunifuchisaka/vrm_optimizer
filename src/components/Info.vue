@@ -70,7 +70,7 @@ watch(() => props.info, () => {
 <style lang="scss">
 #meta {
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
   padding: 1em;
   background: rgba(255,255,255,.8);
