@@ -64,13 +64,13 @@ const upload = (event) => {
 
 <style lang="scss">
 #materials {
-  overflow: auto;
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  max-height: 90vh;
-  padding: 1em;
-  background: rgba(255,255,255,.8);
+  // overflow: auto;
+  // position: absolute;
+  // bottom: 0;
+  // right: 0;
+  // max-height: 90vh;
+  // padding: 1em;
+  // background: rgba(255,255,255,.8);
   box-sizing: border-box;
   h2 {
     margin: 0;

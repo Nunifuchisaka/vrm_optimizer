@@ -3,6 +3,7 @@
 
 interface Emits {
   (e: 'load', v: string ): void;
+  (e: 'exportVRM', v: string ): void;
 }
 const emits = defineEmits<Emits>();
 
@@ -100,20 +101,45 @@ loadModel(
     emits('load', URL.createObjectURL(blob))
   }
 )
+
+const exportVRM = () => {
+  emits('exportVRM', '')
+}
 </script>
 
 <template>
   <div>
-    <input type="file" accept=".vrm" @change="change">
+    <table>
+      <tr>
+        <th>Import</th>
+        <td><input type="file" accept=".vrm" @change="change"></td>
+      </tr>
+      <tr>
+        <th>Export</th>
+        <td>
+          <button @click="exportVRM">Export</button>
+          <!-- <a download>Export</a> -->
+        </td>
+      </tr>
+    </table>
   </div>
 </template>
 
 <style scoped lang="scss">
 div {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  padding: 1em;
-  background-color: #fff;
+  // position: absolute;
+  // top: 10px;
+  // right: 10px;
+  // padding: 1em;
+  // background-color: #fff;
+  margin-top: 1em;
+  padding: 0 1em;
+}
+table {
+  th {
+    width: 0;
+    padding-right: 1em;
+    white-space: nowrap;
+  }
 }
 </style>

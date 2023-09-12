@@ -14,7 +14,7 @@ watch(() => props.info, () => {
 </script>
 
 <template>
-  <div id="meta">
+  <div id="info">
     <table>
       <tr>
         <th>title</th>
@@ -68,12 +68,14 @@ watch(() => props.info, () => {
 </template>
 
 <style lang="scss">
-#meta {
-  position: absolute;
-  top: 0;
-  left: 0;
-  padding: 1em;
-  background: rgba(255,255,255,.8);
+#info {
+  margin-top: 1em;
+  padding: 0 1em;
+  // position: absolute;
+  // top: 0;
+  // left: 0;
+  // padding: 1em;
+  // background: rgba(255,255,255,.8);
   table {
     text-align: left;
   }

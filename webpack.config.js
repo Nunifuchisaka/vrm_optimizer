@@ -8,6 +8,7 @@ const DIST_DIR = './docs',
       RemoveEmptyScriptsPlugin = require('webpack-remove-empty-scripts'),
       //MiniCssExtractPlugin = require('mini-css-extract-plugin'),
       { VueLoaderPlugin } = require('vue-loader'),
+      { VuetifyPlugin } = require('webpack-plugin-vuetify'),
       entries = {};
 
 glob.sync('*.ts', {
@@ -46,16 +47,33 @@ module.exports = {
         }
       },
       {
-        test: /\.scss$/,
-        use: ['style-loader', 'css-loader', 'sass-loader']
+        test: /\.css$/,
+        use: ['vue-style-loader','css-loader']
+      },
+      {
+        test: /\.s(c|a)ss$/,
+        use: [
+          'vue-style-loader',
+          'css-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              implementation: require('sass'),
+              sassOptions: {
+                //indentedSyntax: true // optional
+              },
+            },
+          },
+        ],
       }
     ]
   },
   resolve: {
-    extensions: ['.ts', '.js']
+    extensions: ['.vue', '.ts', '.js']
   },
   plugins: [
     new VueLoaderPlugin(),
+    new VuetifyPlugin({ autoImport: true }),
     new RemoveEmptyScriptsPlugin(),
     new BrowserSyncPlugin({
       host: 'localhost',

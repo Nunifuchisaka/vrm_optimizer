@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import Database from './components/Database.vue'
-import Info from './components/Info.vue'
-import Material from './components/Material.vue'
-import Expression from './components/Expression.vue'
-
+import { ref, watch, onMounted } from 'vue'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter';
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm'
+
+import Database from './components/Database.vue'
+import Info from './components/Info.vue'
+import Material from './components/Material.vue'
+import Expression from './components/Expression.vue'
 
 let vrm
 
@@ -45,9 +45,14 @@ const renderer = new THREE.WebGLRenderer({
   //alpha: true,
 })
 renderer.setPixelRatio(window.devicePixelRatio)
-renderer.setSize(window.innerWidth, window.innerHeight)
+renderer.setSize(window.innerWidth /2, window.innerHeight /2)
 renderer.setClearColor(0x000000)
-document.body.appendChild(renderer.domElement)
+//document.getElementById('canvas').appendChild(renderer.domElement)
+//document.body.appendChild(renderer.domElement)
+
+onMounted(() => {
+  document.getElementById('canvas').appendChild(renderer.domElement)
+})
 
 //カメラ
 const camera = new THREE.PerspectiveCamera(
@@ -221,20 +226,35 @@ const exportVRM = () => {
 </script>
 
 <template>
-  <Info :info="info" />
-  <Database @load="load" />
-  <Material :materials="materials" />
-  <Expression :expressions="expressions" @setExpression="setExpression" />
-  <button @click="exportVRM">Export</button>
-  <a :href="exportURL" download>Export</a>
+  <div id="container_1">
+    <div id="container_1__1">
+      <div id="canvas"></div>
+      <Database @load="load" />
+      <Info :info="info" />
+    </div>
+    <div id="container_1__2">
+      <Material :materials="materials" />
+      <Expression :expressions="expressions" @setExpression="setExpression" />
+    </div>
+  </div><!-- /#container_1 -->
 </template>
 
 <style lang="scss">
+$breakpoint1: 767px;
+
 body, p, ul, ol, dl { margin: 0 }
 
 body {
   line-height: 1.4;
 }
+
+// #buttons {
+//   position: absolute;
+//   bottom: 0;
+//   right: 0;
+//   padding: 1em;
+//   background: rgba(255,255,255,.7);
+// }
 
 .button_1 {
   display: inline-block;
@@ -247,5 +267,38 @@ body {
   border-radius: .5em;
   vertical-align: middle;
   cursor: pointer;
+}
+
+#container_1 {
+  display: flex;
+  &__1 {
+    width: 50vw;
+  }
+  &__2 {
+    width: 50vw;
+    padding: 0 1em;
+    box-sizing: border-box;
+  }
+  @media (max-width: $breakpoint1) {
+    display: block;
+    &__1 {
+      width: auto;
+    }
+    &__2 {
+      width: auto;
+    }
+  }
+}
+
+#canvas {
+  position: sticky;
+  top: 0;
+}
+
+#footer {
+  margin-top: 1em;
+  padding: 1em;
+  border-top: solid 2px #333;
+  text-align: center;
 }
 </style>
